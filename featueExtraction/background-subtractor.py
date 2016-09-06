@@ -23,6 +23,7 @@ def background_subtractor(video_link,method="MOG"):
 			fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
 
 		cv2.imshow('frame',fgmask)
+		print(fgmask)
 		k=cv2.waitKey(30) & 0xff
 		if k == 27:
 			break
@@ -31,7 +32,7 @@ def background_subtractor(video_link,method="MOG"):
 
 
 def main():
-	background_subtractor(basepath+"/FAN.mp4","MOG2")
+	background_subtractor(basepath+"/VIRAT_S_010005_02_000177_000203.mp4","MOG2")
 
 
 if __name__ == "__main__":main()
