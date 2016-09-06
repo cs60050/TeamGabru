@@ -1,5 +1,5 @@
-import sys
-import video
+
+from __future__ import print_function
 import cv2
 import numpy as np
 
@@ -15,69 +15,150 @@ def draw_flow(img, flow, step=16):
         cv2.circle(vis, (x1, y1), 1, (0, 255, 0), -1)
     return vis
 
-try: fn = sys.argv[1]
-except: fn = 0
 
-atom_shape = [10,10,5]
+def process_atom(bins, magnitude, fmask, tag_image, out, atom_shape=[10,10,5]):
 
-cam = cv2.VideoCapture(fn)
+	bin_count = np.zeros(9, np.uint8)
+	h,w, t = bins.shape
+	for i in range(0,h,atom_shape[0]):
+		for j in range(0, w, atom_shape[1]):
+			i_end = min(h, i+10)
+			j_end = min(w, j+10)
 
-# first frame in grayscale
-ret, prev = cam.read()
-prevgray = cv2.cvtColor(prev, cv2.COLOR_BGR2GRAY)
+			# Get the atom for bins
+			atom_bins = bins[i:i_end, j:j_end].flatten()
 
-# Go through all the frames of the video
+			# Average magnitude
+			atom_mag = magnitude[i:i_end, j:j_end].flatten().mean()
+			atom_fmask = fmask[i:i_end, j:j_end].flatten()
+			
+			# Count of foreground values
+			f_cnt = np.count_nonzero(atom_fmask)
 
-mag_threshold = 5
+			# Get the direction bins values
+			hs, _ = np.histogram(atom_bins, np.arange(10))
+			
+			# get the tag atom
+			tag_atom = tag_image[i:i_end, j:j_end].flatten() 
+			#print(tag_atom)
+			ones = np.count_nonzero(tag_atom)
+			zeroes = len(tag_atom) - ones
+			tag = 1
+			if(ones < 0.1*len(tag_atom)):
+				tag = 0
+			features = hs.tolist()
+			features.extend([f_cnt, atom_mag, tag])
+			for f in features:
+				print(f, end=",", file=out)
+			print("\n", end="", file=out)	
+	return 0
 
-while True:
-	#Read next frame
-	ret, img = cam.read()
-	#Convert to grayscale
-	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-	# Calculate Optical for all pixels in the image
-	# Parameters : 
-	# 		prevgray = prev frame
-	#		gray     = current frame
-	#       levels, winsize, iterations, poly_n, poly_sigma, flag
-	# 		0.5 - image pyramid or simple image scale
-	#		3 - no of pyramid levels
-	# 		15 - window size
-	#		3 - no of iterations
-	#		5 - Polynomial degree epansion
-	#		1.2 - standard deviation to smooth used derivatives
-	# 		0 - flag
-	flow = cv2.calcOpticalFlowFarneback(prevgray, gray, 0.5, 3, 15, 3, 5, 1.2, 0)
-	## Flow contains vx, vy for each pixel
+
+def getFeaturesFromVideo(imagelist, taglist, out, mag_threshold=1e-3, atom_shape=[10,10,5]):
 
 	
-	# Calculate direction and magnitude
-	height, width = flow.shape[:2]
-	fx, fy = flow[:,:,0], flow[:,:,1]
+	
+	name = imagelist.next()
+	print(name)
+	# first frame in grayscale
+	prevgray = cv2.imread(imagelist.next(), cv2.IMREAD_GRAYSCALE)
+	taglist.next()
+	## Background extractor
+	fgbg = cv2.BackgroundSubtractorMOG2()
+
+	h, w = prevgray.shape[:2]
+
+	bins = np.zeros((h, w, atom_shape[2]), np.uint8)
+	mag = np.zeros((h, w, atom_shape[2]), np.float32)
+	fmask = np.zeros((h,w,atom_shape[2]), np.uint8)
+	tag_img = np.zeros((h,w,atom_shape[2]), np.uint8)
+
+	time = 0
+
+	# Go through all the frames of the video
+	while True:
+		#Read next frame
+		try:
+			img = cv2.imread(imagelist.next(), cv2.IMREAD_GRAYSCALE)
+		except:
+			print("done")
+			break
+		#img = cv.imread(imagelist.next(), cv2.IMREAD_GRAYSCALE)
+
+		# Read Tagged image
+		tag_img_ = cv2.imread(taglist.next(), cv2.IMREAD_GRAYSCALE)
+
+		tag_img[...,time] = tag_img_
 
 
-	# Calculate direction qunatized into 8 directions
-	angle = ((np.arctan2(fy, fx+1) + 2*np.pi)*180)% 360
-	binno = np.ceil(angle/45)
+		cv2.imshow('image',img)
+		cv2.imshow('tag', tag_img_)
+		cv2.waitKey(5)
 
-	# Calculate magnitude
-	magnitude = np.sqrt(fx*fx+fy*fy)
+		# Get foreground/background
+		fmask[...,time] = fgbg.apply(img)
 
-	# Add to zero bin if magnitude below a certain threshold
-	#if(magnitude < mag_threshold):
-	binno[magnitude < mag_threshold] = 0
 
-	hsv = np.zeros((height, width, 3), np.uint8)
-	hsv[...,0] = np.minimum(binno*40, 255)
-	hsv[...,1] = 255
-	hsv[...,2] = 255
-	bgr = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+		#Convert to grayscale
+		gray = img
+		# Calculate Optical Flow for all pixels in the image
+		# Parameters : 
+		# 		prevgray = prev frame
+		#		gray     = current frame
+		#       levels, winsize, iterations, poly_n, poly_sigma, flag
+		# 		0.5 - image pyramid or simple image scale
+		#		3 - no of pyramid levels
+		# 		15 - window size
+		#		3 - no of iterations
+		#		5 - Polynomial degree epansion
+		#		1.2 - standard deviation to smooth used derivatives
+		# 		0 - flag
+		flow = cv2.calcOpticalFlowFarneback(prevgray, gray, 0.5, 3, 15, 3, 5, 1.2, 0)
+		## Flow contains vx, vy for each pixel
 
-	cv2.imshow('flow', draw_flow(gray, flow))
-	cv2.imshow('flow HSV', bgr)
-	ch = 0xFF & cv2.waitKey(5)
-	if ch == 27:
-		break
+		
+		# Calculate direction and magnitude
+		height, width = flow.shape[:2]
+		fx, fy = flow[:,:,0], flow[:,:,1]
 
-	prevgray = gray
 
+		# Calculate direction qunatized into 8 directions
+		angle = ((np.arctan2(fy, fx+1) + 2*np.pi)*180)% 360
+		binno = np.ceil(angle/45)
+
+		# Calculate magnitude
+		magnitude = np.sqrt(fx*fx+fy*fy)
+
+		# Add to zero bin if magnitude below a certain threshold
+		#if(magnitude < mag_threshold):
+		binno[magnitude < mag_threshold] = 0
+
+		bins[...,time] = binno
+		mag[..., time] = magnitude
+		time = time + 1
+
+		if(time == 5):
+			time = 0
+			process_atom(bins, mag, fmask, tag_img, out)
+
+		prevgray = gray
+
+	if(time > 0):
+		process_atom(bins,mag,fmask, tag_img, out)
+
+	out.close()
+
+
+def generateFeatures(dirname):
+
+	out = open(dirname+"/features","w")
+	imagelist = [dirname+"/"+str(i).zfill(3)+".tif" for i in range(1,201)]
+	taglist = [dirname+"_gt/"+str(i).zfill(3)+".bmp" for i in range(1,201)]
+	getFeaturesFromVideo(iter(imagelist), iter(taglist), out)
+
+
+
+generateFeatures("/home/prabhat/Documents/sem7/ML/TeamGabru/featueExtraction/Sample-Videos/Test023")
+
+#getFeaturesFromVideo("/home/prabhat/Documents/sem7/ML/TeamGabru/featueExtraction/Sample-Videos/VIRAT_S_010005_02_000177_000203.mp4")
+#getFeaturesFromVideo(0)
