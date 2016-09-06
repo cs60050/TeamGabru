@@ -2,6 +2,9 @@
 from __future__ import print_function
 import cv2
 import numpy as np
+import os
+
+destpath = os.path.dirname(os.path.abspath(__file__))+"/Output/10/Ped1"
 
 def draw_flow(img, flow, step=16):
     h, w = img.shape[:2]
@@ -44,7 +47,7 @@ def process_atom(bins, magnitude, fmask, tag_image, out, atom_shape=[10,10,5]):
 			ones = np.count_nonzero(tag_atom)
 			zeroes = len(tag_atom) - ones
 			tag = 1
-			if(ones < 0.1*len(tag_atom)):
+			if(ones < 10):
 				tag = 0
 			features = hs.tolist()
 			features.extend([f_cnt, atom_mag, tag])
@@ -58,13 +61,13 @@ def getFeaturesFromVideo(imagelist, taglist, out, mag_threshold=1e-3, atom_shape
 
 	
 	
-	name = imagelist.next()
+	name = imagelist.__next__()
 	print(name)
 	# first frame in grayscale
-	prevgray = cv2.imread(imagelist.next(), cv2.IMREAD_GRAYSCALE)
-	taglist.next()
+	prevgray = cv2.imread(imagelist.__next__(), cv2.IMREAD_GRAYSCALE)
+	taglist.__next__()
 	## Background extractor
-	fgbg = cv2.BackgroundSubtractorMOG2()
+	fgbg = cv2.createBackgroundSubtractorMOG2()
 
 	h, w = prevgray.shape[:2]
 
@@ -79,21 +82,21 @@ def getFeaturesFromVideo(imagelist, taglist, out, mag_threshold=1e-3, atom_shape
 	while True:
 		#Read next frame
 		try:
-			img = cv2.imread(imagelist.next(), cv2.IMREAD_GRAYSCALE)
+			img = cv2.imread(imagelist.__next__(), cv2.IMREAD_GRAYSCALE)
 		except:
 			print("done")
 			break
-		#img = cv.imread(imagelist.next(), cv2.IMREAD_GRAYSCALE)
+		#img = cv.imread(imagelist.__next__(), cv2.IMREAD_GRAYSCALE)
 
 		# Read Tagged image
-		tag_img_ = cv2.imread(taglist.next(), cv2.IMREAD_GRAYSCALE)
+		tag_img_ = cv2.imread(taglist.__next__(), cv2.IMREAD_GRAYSCALE)
 
 		tag_img[...,time] = tag_img_
 
 
-		cv2.imshow('image',img)
-		cv2.imshow('tag', tag_img_)
-		cv2.waitKey(5)
+		# cv2.imshow('image',img)
+		# cv2.imshow('tag', tag_img_)
+		# cv2.waitKey(5)
 
 		# Get foreground/background
 		fmask[...,time] = fgbg.apply(img)
@@ -113,7 +116,7 @@ def getFeaturesFromVideo(imagelist, taglist, out, mag_threshold=1e-3, atom_shape
 		#		5 - Polynomial degree epansion
 		#		1.2 - standard deviation to smooth used derivatives
 		# 		0 - flag
-		flow = cv2.calcOpticalFlowFarneback(prevgray, gray, 0.5, 3, 15, 3, 5, 1.2, 0)
+		flow = cv2.calcOpticalFlowFarneback(prevgray, gray,None, 0.5, 3, 15, 3, 5, 1.2, 0)
 		## Flow contains vx, vy for each pixel
 
 		
@@ -150,15 +153,22 @@ def getFeaturesFromVideo(imagelist, taglist, out, mag_threshold=1e-3, atom_shape
 
 
 def generateFeatures(dirname):
-
-	out = open(dirname+"/features","w")
-	imagelist = [dirname+"/"+str(i).zfill(3)+".tif" for i in range(1,201)]
-	taglist = [dirname+"_gt/"+str(i).zfill(3)+".bmp" for i in range(1,201)]
+	s = dirname.split("\\")[-1]
+	import glob
+	out = open(destpath+"/features_"+s+".txt","w")
+	imagelist = glob.glob(dirname+"/*.tif")
+	taglist = glob.glob(dirname+"_gt/*.bmp")
+	print(taglist)
+	'''imagelist = [ for i in range(1,181)]
+	taglist = [dirname+"_gt/"+str(i).zfill(3)+".bmp" for i in range(1,181)]'''
 	getFeaturesFromVideo(iter(imagelist), iter(taglist), out)
 
 
+# li = ["001","002","003","004","005","006","007","008","009","010","011","012"]
+li = ["003","004","014","018","019","021","022","023","024","032"]
+for l in li:
+	generateFeatures("E:\\Acads\\._7th Sem\\Machine Learning\\Project\\Dataset\\UCSD_Anomaly_Dataset.v1p2\\UCSDped1\\Test\\Test"+l)
 
-generateFeatures("/home/prabhat/Documents/sem7/ML/TeamGabru/featueExtraction/Sample-Videos/Test023")
 
 #getFeaturesFromVideo("/home/prabhat/Documents/sem7/ML/TeamGabru/featueExtraction/Sample-Videos/VIRAT_S_010005_02_000177_000203.mp4")
 #getFeaturesFromVideo(0)
