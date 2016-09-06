@@ -14,5 +14,5 @@ The official repository of TeamGabru.
 
 [Ashish Sharma](https://github.com/ash-shar) 13CS30043
 
-#Anamoly detection in surveillance videos
-We will be detecting anomaly in survaillance videos using Machine Learning Techniques.
+#Anomaly detection in surveillence videos
+We will be detecting anomaly in survaillence videos using Machine Learning Techniques.
