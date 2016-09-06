@@ -21,14 +21,17 @@ from sklearn.metrics import roc_auc_score
 import os
 import codecs
 import numpy as np
+import pickle
 
 basepath = os.path.dirname(os.path.abspath(__file__))+"/../featueExtraction/Output"
+model_path = os.path.dirname(os.path.abspath(__file__))+"/TrainedClassifiers"
+output_path = os.path.dirname(os.path.abspath(__file__))+"/Output"
+eval_path = os.path.dirname(os.path.abspath(__file__))+"/Evaluation"
 
 
-
-names = ["Nearest Neighbors", "Linear SVM", "RBF SVM", "Decision Tree",
-         "Random Forest", "AdaBoost", "Naive Bayes", "Linear Discriminant Analysis",
-         "Quadratic Discriminant Analysis"]
+names = ["NearestNeighbors", "LinearSVM", "RBFSVM", "DecisionTree",
+         "RandomForest", "AdaBoost", "NaiveBayes", "LinearDiscriminantAnalysis",
+         "QuadraticDiscriminantAnalysis"]
 
 
 classifiers = [
@@ -65,6 +68,8 @@ def load_train_dataset(train_path):
     y_train = []
 
     for filename in files:
+        if filename == ".DS_Store":
+            continue
         file = codecs.open(train_path+"/"+filename,'r','utf-8')
 
         for row in file:
@@ -83,6 +88,8 @@ def load_test_dataset(test_path):
     y_true = []
 
     for filename in files:
+        if filename == ".DS_Store":
+            continue
         file = codecs.open(test_path+"/"+filename,'r','utf-8')
 
         for row in file:
@@ -99,25 +106,38 @@ def main():
     treshold_dirs = os.listdir(basepath)
 
     for dir in treshold_dirs:
+        if dir == ".DS_Store":
+            continue
         print(dir)
         ped_dirs = os.listdir(basepath+"/"+dir)
 
         for sub_dir in ped_dirs:
+            if sub_dir == ".DS_Store":
+                continue
 
             print(dir,sub_dir)
 
             train_path = basepath+"/"+dir+"/"+sub_dir+"/Train"
             test_path = basepath+"/"+dir+"/"+sub_dir+"/Test"
 
-            write_file = codecs.open(dir+"_"+sub_dir+"output.txt",'w','utf-8')
-            eval_file = codecs.open(dir+"_"+sub_dir+"evaluation_scores.txt",'w','utf-8')
+            write_file = codecs.open(output_path+"/"+dir+"_"+sub_dir+"-output.txt",'w','utf-8')
+            eval_file = codecs.open(eval_path+"/"+dir+"_"+sub_dir+"-evaluation_scores.txt",'w','utf-8')
 
             X_train,y_train = load_train_dataset(train_path)
 
             X_test,y_true = load_test_dataset(test_path)
 
+            print(train_path,test_path)
+
             for algo, clf in zip(names, classifiers):
-                clf.fit(X_train, y_train)
+                try:
+                    with open(model_path+"/"+dir+"/"+sub_dir+"/"+algo + '.pkl', 'rb') as f1:
+                        clf = pickle.load(f1)
+                except:
+                    clf.fit(X_train, y_train)
+                    with open(model_path+"/"+dir+"/"+sub_dir+"/"+algo + '.pkl', 'wb') as f1:
+                        pickle.dump(clf, f1)
+
                 predicted = []
                 print(algo+"_fitted")
 
@@ -131,6 +151,5 @@ def main():
                 scores = evaluate(y_true,predicted)
                 print(algo+"\t"+str(scores),file=eval_file)
 
-                break
 
 if __name__ == "__main__":main()

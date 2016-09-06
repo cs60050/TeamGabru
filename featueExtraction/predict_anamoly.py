@@ -129,10 +129,10 @@ def getPredictionForVideo(video_link, classifier, mag_threshold=1e-3, atom_shape
 
 
 
-CLASSIFIER_DIR = "../ML-Model/TrainedClassifiers/10/PED 1/"
+CLASSIFIER_DIR = "../ML-Model/TrainedClassifiers/10/Ped1/"
 video = input("Enter video file name, 0 for webcam")
 classifier_name = input("Enter the classifier name")
 
-clf = pickle.load(open(CLASSIFIER_DIR + "/" + 'Decision Trees.pkl', 'rb'))
+clf = pickle.load(open(CLASSIFIER_DIR + 'NearestNeighbors.pkl', 'rb'))
 
 getPredictionForVideo(video, clf)
