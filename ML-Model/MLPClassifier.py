@@ -48,13 +48,13 @@ evaluation_methods = []
 
 def evaluate(y_true,y_pred):
 	return [accuracy_score(y_true, y_pred),
-	f1_score(y_true, y_pred, average=None),
+	f1_score(y_true, y_pred, average='binary'),
 	f1_score(y_true, y_pred, average='micro'),
 	f1_score(y_true, y_pred, average='macro'),
 	f1_score(y_true, y_pred, average='weighted'),
 	log_loss(y_true,y_pred),
-	precision_score(y_true, y_pred, average=None),
-	recall_score(y_true, y_pred, average=None),
+	precision_score(y_true, y_pred, average='binary'),
+	recall_score(y_true, y_pred, average='binary'),
 	roc_auc_score(y_true, y_pred)]
 
 
