@@ -42,19 +42,19 @@ classifiers = [
     MLPClassifier(algorithm='adam', alpha=1e-5, hidden_layer_sizes=(15, 15), random_state=1, verbose=True)
     ]
 
-evaluation_names = ["Accuracy","Avg. Precision","F1 Score","F1_Micro","F1_Macro","F1_Weighted","Log_Loss","Precision","Recall","ROC_AUC"]
+evaluation_names = ["Accuracy","F1 Score","F1_Micro","F1_Macro","F1_Weighted","Log_Loss","Precision","Recall","ROC_AUC"]
 
 evaluation_methods = []
 
 def evaluate(y_true,y_pred):
 	return [accuracy_score(y_true, y_pred),
-	f1_score(y_true, y_pred, average='binary'),
+	f1_score(y_true, y_pred, average=None),
 	f1_score(y_true, y_pred, average='micro'),
 	f1_score(y_true, y_pred, average='macro'),
 	f1_score(y_true, y_pred, average='weighted'),
 	log_loss(y_true,y_pred),
-	precision_score(y_true, y_pred, average='binary'),
-	recall_score(y_true, y_pred, average='binary'),
+	precision_score(y_true, y_pred, average=None),
+	recall_score(y_true, y_pred, average=None),
 	roc_auc_score(y_true, y_pred)]
 
 
@@ -62,7 +62,7 @@ def evaluate(y_true,y_pred):
 def load_train_dataset():
     x = []
     Y = []
-    for files in os.listdir(Train1):
+    for files in os.listdir(Train2):
         f = open(Train1 + files, 'r')
         for lines in f:
             lines = lines.split(',')
@@ -74,18 +74,18 @@ def load_train_dataset():
             label = int(lines[11])
             x.append(x1)
             Y.append(label)
-    for files in os.listdir(Train2):
-        f = open(Train2 + files, 'r')
-        for lines in f:
-            lines = lines.split(',')
-            i = 0
-            x1 = []
-            while i<11:
-                x1.append(float(lines[i]))
-                i += 1
-            label = int(lines[11])
-            x.append(x1)
-            Y.append(label)
+    # for files in os.listdir(Train2):
+    #     f = open(Train2 + files, 'r')
+    #     for lines in f:
+    #         lines = lines.split(',')
+    #         i = 0
+    #         x1 = []
+    #         while i<11:
+    #             x1.append(float(lines[i]))
+    #             i += 1
+    #         label = int(lines[11])
+    #         x.append(x1)
+    #         Y.append(label)
 
     return x, Y
 
@@ -93,7 +93,7 @@ def load_train_dataset():
 def load_test_dataset():
     x = []
     Y = []
-    for files in os.listdir(Test1):
+    for files in os.listdir(Test2):
         f = open(Test1 + files, 'r')
         for lines in f:
             lines = lines.split(',')
@@ -139,7 +139,7 @@ def main():
             coll.append(z[0])
         score = evaluate(y_test, coll)
         print(str(score))
-        f = open(name + '.txt', 'a')
+        f = open(name + '.txt', 'w')
         f.write(str(score))
 
 
