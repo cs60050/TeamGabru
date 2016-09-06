@@ -137,3 +137,13 @@ def getPredictionForVideo(video_link, classifier, mag_threshold=1e-3, atom_shape
 
 	if(time > 0):
 		process_atom(bins,mag,fmask, classifier)
+
+
+
+CLASSIFIER_DIR = "Add directory of trained classifiers"
+video = raw_input("Enter video file name, 0 for webcam")
+classifier_name = int(raw_input("Enter the classifier name"))
+
+clf = pickle.load(open(CLASSIFIER_DIR + "/" + classifier_name))
+
+getPredictionForVideo(video, clf)
