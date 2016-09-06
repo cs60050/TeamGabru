@@ -10,7 +10,7 @@ The official repository of TeamGabru.
 
 [Jeenu Grover](https://github.com/groverjeenu) 13CS30042
 
-[Chinmaya Pancholi](chinmayapancholi13) 13CS30010
+[Chinmaya Pancholi](https://github.com/chinmayapancholi13) 13CS30010
 
 [Ashish Sharma](https://github.com/ash-shar) 13CS30043
 
