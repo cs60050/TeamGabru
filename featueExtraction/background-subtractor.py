@@ -7,7 +7,7 @@ basepath = os.path.dirname(os.path.abspath(__file__))+"/Sample-Videos/"
 def background_subtractor(video_link,method="MOG"):
 	cap = cv2.VideoCapture(video_link)
 	if method == "MOG":
-		cap = cv2.createBackgroundSubtractorMOG()
+		fgbg = cv2.createBackgroundSubtractorMOG()
 	elif method == "MOG2":
 		fgbg = cv2.createBackgroundSubtractorMOG2()
 	elif method=="GMG":
