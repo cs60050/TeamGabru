@@ -18,10 +18,20 @@ from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import roc_auc_score
 
+import os
+import codecs
+import numpy as np
+import pickle
 
-names = ["Nearest Neighbors", "Linear SVM", "RBF SVM", "Decision Tree",
-         "Random Forest", "AdaBoost", "Naive Bayes", "Linear Discriminant Analysis",
-         "Quadratic Discriminant Analysis"]
+basepath = os.path.dirname(os.path.abspath(__file__))+"/../featueExtraction/Output"
+model_path = os.path.dirname(os.path.abspath(__file__))+"/TrainedClassifiers"
+output_path = os.path.dirname(os.path.abspath(__file__))+"/Output"
+eval_path = os.path.dirname(os.path.abspath(__file__))+"/Evaluation"
+
+
+names = ["NearestNeighbors", "LinearSVM", "RBFSVM", "DecisionTree",
+         "RandomForest", "AdaBoost", "NaiveBayes", "LinearDiscriminantAnalysis",
+         "QuadraticDiscriminantAnalysis"]
 
 
 classifiers = [
@@ -36,9 +46,7 @@ classifiers = [
     QuadraticDiscriminantAnalysis()]
 
 
-evaluation_names = ["Accuracy","Avg. Precision","F1 Score","F1_Micro","F1_Macro","F1_Weighted","Log_Loss","Precision","Recall","ROC_AUC"]
-
-evaluation_methods = []
+evaluation_names = ["Accuracy","F1 Score","F1_Micro","F1_Macro","F1_Weighted","Log_Loss","Precision","Recall","ROC_AUC"]
 
 def evaluate(y_true,y_pred):
 	return [accuracy_score(y_true, y_pred),
@@ -49,28 +57,99 @@ def evaluate(y_true,y_pred):
 	log_loss(y_true,y_pred),
 	precision_score(y_true, y_pred, average=None),
 	recall_score(y_true, y_pred, average=None),
-	roc_auc_score(y_true, y_scores)]
+	roc_auc_score(y_true, y_pred)]
 
 
 
-def load_train_dataset():
+def load_train_dataset(train_path):
+    files = os.listdir(train_path)
+
+    X_train = []
+    y_train = []
+
+    for filename in files:
+        if filename == ".DS_Store":
+            continue
+        file = codecs.open(train_path+"/"+filename,'r','utf-8')
+
+        for row in file:
+            l = row.strip().split(",")
+            X_train.append(l[0:11])
+            y_train.append(int(l[11]))
+        print(filename)
+
+    return X_train,y_train
 
 
-def load_test_dataset():
+def load_test_dataset(test_path):
+    files = os.listdir(test_path)
+
+    X_test = []
+    y_true = []
+
+    for filename in files:
+        if filename == ".DS_Store":
+            continue
+        file = codecs.open(test_path+"/"+filename,'r','utf-8')
+
+        for row in file:
+            l = row.strip().split(",")
+            X_test.append(l[0:11])
+            y_true.append(int(l[11]))
+        print(filename)
+
+    return X_test,y_true
 
 
 def main():
 
-	X_train,y_train = load_train_dataset()
+    treshold_dirs = os.listdir(basepath)
 
-	X_test,y_test = load_test_dataset()
+    for dir in treshold_dirs:
+        if dir == ".DS_Store":
+            continue
+        print(dir)
+        ped_dirs = os.listdir(basepath+"/"+dir)
 
-    # iterate over classifiers
-    for name, clf in zip(names, classifiers):
-        
-        clf.fit(X_train, y_train)
+        for sub_dir in ped_dirs:
+            if sub_dir == ".DS_Store":
+                continue
 
-        score = clf.score(X_test, y_test)
+            print(dir,sub_dir)
+
+            train_path = basepath+"/"+dir+"/"+sub_dir+"/Train"
+            test_path = basepath+"/"+dir+"/"+sub_dir+"/Test"
+
+            write_file = codecs.open(output_path+"/"+dir+"_"+sub_dir+"-output.txt",'w','utf-8')
+            eval_file = codecs.open(eval_path+"/"+dir+"_"+sub_dir+"-evaluation_scores.txt",'w','utf-8')
+
+            X_train,y_train = load_train_dataset(train_path)
+
+            X_test,y_true = load_test_dataset(test_path)
+
+            print(train_path,test_path)
+
+            for algo, clf in zip(names, classifiers):
+                try:
+                    with open(model_path+"/"+dir+"/"+sub_dir+"/"+algo + '.pkl', 'rb') as f1:
+                        clf = pickle.load(f1)
+                except:
+                    clf.fit(X_train, y_train)
+                    with open(model_path+"/"+dir+"/"+sub_dir+"/"+algo + '.pkl', 'wb') as f1:
+                        pickle.dump(clf, f1)
+
+                predicted = []
+                print(algo+"_fitted")
+
+                for ind in range(0,len(X_test)):
+                    vector = np.matrix(X_test[ind])
+                    predicted+=[clf.predict(vector)[0]]
+                
+                print(algo, predicted, file=write_file)
+                print(algo+"_Tested")
+
+                scores = evaluate(y_true,predicted)
+                print(algo+"\t"+str(scores),file=eval_file)
 
 
 if __name__ == "__main__":main()

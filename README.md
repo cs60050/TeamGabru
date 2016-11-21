@@ -16,3 +16,9 @@ The official repository of TeamGabru.
 
 #Anomaly detection in surveillance videos
 We will be detecting anomaly in surveillance videos using Machine Learning Techniques.
+
+06-09-2016 : 
+[Video Anomaly Detection Based on Local Statistical Aggregates](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.703.7756&rep=rep1&type=pdf)
+
+Implemented a basic classifier to detect Anomalies based on the given paper. We are using spatio-temporal localities by extracting features from them and training the supervised model. The features vector is 11 dimensional as mentioned in the paper. The classifiers used include "NearestNeighbors (kNN)", "LinearSVM", "SVM with RBF Kernel", "Decision Trees",
+"Random Forest Classifier", "AdaBoost", "NaiveBayes", "LinearDiscriminantAnalysis" and "QuadraticDiscriminantAnalysis".
