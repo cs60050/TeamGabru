@@ -1,7 +1,10 @@
-# TeamGabru
-The official repository of TeamGabru.
+# Anomaly detection in Video Feeds
+The official repository of our ML Project Anomaly detection in Video Feeds.
 
-#Team Members
+### Team Name
+Team Gabru
+
+### Team Members
 [Prabhat Agarwal](https://github.com/prabhat1081) 13CS10060
 
 [Jatin Arora](https://github.com/jatinarora2702) 13CS10057
@@ -14,11 +17,25 @@ The official repository of TeamGabru.
 
 [Ashish Sharma](https://github.com/ash-shar) 13CS30043
 
-#Anomaly detection in surveillance videos
-We will be detecting anomaly in surveillance videos using Machine Learning Techniques.
 
-06-09-2016 : 
-[Video Anomaly Detection Based on Local Statistical Aggregates](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.703.7756&rep=rep1&type=pdf)
+### Approaches
 
-Implemented a basic classifier to detect Anomalies based on the given paper. We are using spatio-temporal localities by extracting features from them and training the supervised model. The features vector is 11 dimensional as mentioned in the paper. The classifiers used include "NearestNeighbors (kNN)", "LinearSVM", "SVM with RBF Kernel", "Decision Trees",
-"Random Forest Classifier", "AdaBoost", "NaiveBayes", "LinearDiscriminantAnalysis" and "QuadraticDiscriminantAnalysis".
+**1. Using Optical Flow:** Extracting spatial-temporal features using optical flow and training classifiers for detecting anomaly
+
+**2. Using AlexNet:** Alexnet contains eight learned layers, five convolutional and three fully-connected layers. Pretrained Alexnet is applied to each frame of the video. Then we take the output of the fc7 layer which gives us a 4096 dimensional vector. 
+
+**3. Time Series Analysis:** Standard statistical techniques for anomaly detection in the feature space we obtain from AlexNet.
+
+**4. Topic Modelling:** A generative model of typical behavior is learned using good discriminative features, and then abnormal behaviors (outliers) are detected and classified as those that are badly explained by the learned model.
+
+### References
+
+1. Rousseeuw, P. and Leroy, A.: 1996, Robust Regression and Outlier Detection. John Wiley & Sons., 3 edition
+2. Torr, P. H. S. and Murray, D. W.: 1993, ‘Outlier Detection and Motion Segmentation’. In: Proceedings of SPIE
+3. Fawcett, T. and Provost, F. J.: 1999, ‘Activity Monitoring: Noticing Interesting Changes in Behavior’. In: Proceedings of the 5th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining. pp. 53–62
+4. Japkowicz, N., Myers, C., and Gluck M. A.: 1995, ‘A Novelty Detection Approach to Classification’. In: Proceedings of the 14th International Conference on Artificial Intelligence (IJCAI-95). pp. 518–523
+5. http://www.svcl.ucsd.edu/projects/anomaly/dataset.htm
+6. Saligrama, Venkatesh, and Zhu Chen. "Video anomaly detection based on local statistical aggregates." Computer Vision and Pattern Recognition (CVPR), 2012 IEEE Conference on. IEEE, 2012.
+7. https://github.com/BVLC/caffe/tree/master/models/bvlc_reference_caffenet
+8. T. Hofmann. Unsupervised learning by probability latent semantic analysis. Machine Learning, 42:177–196, 2001
+9. Varadarajan, Jagannadan, and Jean-Marc Odobez. "Topic models for scene analysis and abnormality detection." Computer Vision Workshops (ICCV Workshops), 2009 IEEE 12th International Conference on. IEEE, 2009.
