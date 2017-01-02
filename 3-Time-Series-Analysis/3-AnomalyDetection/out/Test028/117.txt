@@ -1,0 +1,3 @@
+RESULTS:  {'anoms':                         anoms           timestamp
+timestamp                                        
+2016-01-01 11:46:00 -0.543019 2016-01-01 11:46:00, 'plot': None}
