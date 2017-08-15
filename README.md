@@ -5,17 +5,18 @@ The official repository of our ML Project Anomaly detection in Video Feeds.
 Team Gabru
 
 ### Team Members
-[Prabhat Agarwal](https://github.com/prabhat1081) 13CS10060
-
-[Jatin Arora](https://github.com/jatinarora2702) 13CS10057
-
 [Aishik Chakraborty](https://github.com/aishikchakraborty) 13CS30041
 
-[Jeenu Grover](https://github.com/groverjeenu) 13CS30042
+[Ashish Sharma](https://github.com/ash-shar) 13CS30043
 
 [Chinmaya Pancholi](https://github.com/chinmayapancholi13) 13CS30010
 
-[Ashish Sharma](https://github.com/ash-shar) 13CS30043
+[Jatin Arora](https://github.com/jatinarora2702) 13CS10057
+
+[Jeenu Grover](https://github.com/groverjeenu) 13CS30042
+
+[Prabhat Agarwal](https://github.com/prabhat1081) 13CS10060
+
 
 
 ### Approaches
