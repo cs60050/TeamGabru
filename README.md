@@ -17,7 +17,9 @@ Team Gabru
 
 [Prabhat Agarwal](https://github.com/prabhat1081) 13CS10060
 
+### Presentation
 
+The presentation can be found here ([Slides](https://github.com/cs60050/TeamGabru/blob/master/ML-Anamoly-Detection-TeamGabru.pptx), [pdf](https://github.com/cs60050/TeamGabru/blob/master/Anomaly-Detection-in-Videos.pdf))
 
 ### Approaches
 
